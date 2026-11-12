@@ -18,6 +18,13 @@
 </div>
 
 <!-- TODO (Bloque 1 - Ejercicio 1.1): Añadir formulario GET con campo de texto 'busqueda' y checkbox 'solo_con_plazas' -->
+<form action="GET">
+<label for="search">Búsqueda</label>
+<input type="text" id ="search"> 
+<input type="checkbox" name="plazas" id="plazas">
+<label for="plazas">Solo con plazas</label>
+</form>
+<hr>
 
 {% for act in lista_actividades %}
 <div class="card-actividad">
@@ -32,7 +39,9 @@
         <span>({{ act.deporte }}) — <strong>{{ "%.2f"|format(act.cuota) }} €/mes</strong></span>
 
         <!-- TODO (Bloque 1 - Ejercicio 1.2): Mostrar etiqueta '⭐ Tu deporte favorito' si act.deporte coincide con la cookie deporte_fav -->
-
+        {% if act.deporte == deporte_fav %}
+         <span class="badge-fav">⭐ Tu deporte favorito</span>
+        {% endif%}
         {% if act.plazas_libres > 0 %}
             <span style="color: green; margin-left: 8px;">({{ act.plazas_libres }} plazas libres)</span>
         {% else %}
@@ -48,10 +57,12 @@
         {% endif %}
 
         <!-- TODO (Bloque 2): Mostrar los controles Editar y Eliminar SOLO si el usuario autenticado es monitor -->
+        {% if current_user.es_monitor %}
         <a href="{{ url_for('admin.editar_actividad', act_id=act.id) }}" style="margin-left: 8px;">Editar</a>
         <form action="{{ url_for('admin.eliminar_actividad', act_id=act.id) }}" method="post" style="display:inline; margin-left: 5px;">
             <button type="submit" class="btn btn-danger" onclick="return confirm('¿Eliminar {{ act.nombre }}?');">Eliminar</button>
         </form>
+        {% endif %}
     </div>
 </div>
 {% else %}

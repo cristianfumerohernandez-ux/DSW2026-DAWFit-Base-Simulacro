@@ -23,9 +23,8 @@ def home():
 def mostrar_actividades():
 
     actividades = Actividad.query.all()
-
-    deporte_fav = None
-
+    deporte_fav = request.cookies.get("deporte_fav")
+    
     return render_template(
         "catalogo.html",
         lista_actividades=actividades,
@@ -41,12 +40,17 @@ def ver_actividad(act_id):
 
 @public_bp.route("/preferencia/<string:deporte>")
 def guardar_preferencia(deporte):
-    return redirect(url_for("public.mostrar_actividades"))
+    resp = make_response(redirect(url_for("public.home")))
+    resp.set_cookie("deporte_fav", value = deporte, max_age=60*60*24*15, httponly=True, samesite="Lax")
+    
+    return resp
 
 
 @public_bp.route("/limpiar-preferencia")
 def limpiar_preferencia():
-    return redirect(url_for("public.mostrar_actividades"))
+    resp = make_response(redirect(url_for("public.mostrar_actividades")))
+    resp.delete_cookie("deporte_fav")
+    return resp
 
 
 @public_bp.route("/reservas/apuntar/<int:act_id>", methods=["POST"])
