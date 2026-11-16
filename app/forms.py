@@ -73,8 +73,12 @@ class ActividadForm(FlaskForm):
     submit = SubmitField("Guardar Actividad")
     
     def validate_nombre(self, field):
-            if Actividad.query.filter_by(nombre=field.data).first():
-                raise ValidationError("Está actividad ya está registrada.")
+        actividades = Actividad.query.filter_by(nombre=field.data)
+        actividad_actual_id = getattr(self, "actividad_actual_id", None)
+        if actividad_actual_id is not None:
+            actividades = actividades.filter(Actividad.id != actividad_actual_id)
+        if actividades.first():
+            raise ValidationError("Está actividad ya está registrada.")
 
 class RegistroForm(FlaskForm):
     """Formulario de alta para nuevos socios."""

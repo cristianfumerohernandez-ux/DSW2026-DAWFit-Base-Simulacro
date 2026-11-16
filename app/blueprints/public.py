@@ -56,29 +56,72 @@ def limpiar_preferencia():
 @public_bp.route("/reservas/apuntar/<int:act_id>", methods=["POST"])
 @login_required
 def apuntar_actividad(act_id):
-    flash("Funcionalidad de inscripción pendiente de implementar.", "info")
+    session.permanent = True
+    ids = session.get("reservas", [])
+    actividad = db.get_or_404(Actividad,act_id)
+
+    if(actividad.plazas_libres > 0):
+        if(act_id not in ids):
+            if(len(ids) < 3):
+                session.setdefault("reservas", [])
+                session["reservas"].append(act_id)
+                session.modified = True
+                flash("Se ha reservado correctamente", "exito")
+            else:
+                flash("Error, has sobrepasado tu máximo de reservas", "error")
+        else:
+            flash("Error, has intentado meter una reserva que ya tenías" , "error")
+    else:
+        flash("Error, no te queda espacio en tus reservas", "error")
+
     return redirect(url_for("public.mostrar_actividades"))
 
 
 @public_bp.route("/reservas")
 @login_required
 def ver_reservas():
+    ids = session.get("reservas", [])
+    if ids:
+        actividades = Actividad.query.filter(Actividad.id.in_(ids)).all() 
+        total_sin_descuento = sum(act.cuota for act in actividades)
+        descuento_aplicado = len(actividades) == 3
+        total_final = total_sin_descuento * 0.8 if descuento_aplicado else total_sin_descuento
+    else:
+        actividades = []
+        total_sin_descuento = 0.0
+        descuento_aplicado = False
+        total_final = 0.0
+    
+        
     return render_template(
         "reservas.html",
-        actividades=[],
-        total_sin_descuento=0.0,
-        descuento_aplicado=False,
-        total_final=0.0,
+        actividades=actividades,
+        total_sin_descuento=total_sin_descuento,
+        descuento_aplicado=descuento_aplicado,
+        total_final=total_final,
     )
 
 
 @public_bp.route("/reservas/cancelar/<int:act_id>", methods=["POST"])
 @login_required
 def cancelar_reserva(act_id):
+    session["reservas"].remove(act_id)
+    session.modified = True
+    flash("Reserva eliminada", "exito")
     return redirect(url_for("public.ver_reservas"))
 
 
 @public_bp.route("/reservas/confirmar", methods=["POST"])
 @login_required
 def confirmar_reservas():
+    ids = session.get("reservas", [])
+    
+    for act_id in ids:
+        actividad = db.session.get(Actividad, act_id)
+        if actividad is not None:
+            actividad.plazas_libres -= 1
+
+    db.session.commit()
+    session.pop("reservas", None)
+
     return redirect(url_for("public.mostrar_actividades"))
