@@ -25,6 +25,7 @@ def login():
             return redirect(url_for("public.mostrar_actividades"))
         else:
             flash("Correo electrónico o contraseña incorrectos.", "error")
+            return redirect(url_for("auth.login"))
 
     return render_template("login.html", form=form)
 
@@ -56,19 +57,21 @@ def registro():
 def perfil():
     form = CambiarPasswordForm()
     if form.validate_on_submit():
-        password_actual = form.data.get("password_actual")
-        nueva_password = form.data.get("nueva_password")
+        password_actual = form.password_actual.data
+        nueva_password = form.nueva_password.data
         
         if current_user.check_password(password_actual) and password_actual != nueva_password:
             current_user.set_password(nueva_password)
             db.session.commit()
             flash("Contraseña cambiada correctamente", "exito")
-            return redirect (url_for("auth.perfil"))
+        else:
+            flash("La contraseña actual no es válida o la nueva coincide con la actual.", "error")
+        return redirect(url_for("auth.perfil"))
 
     return render_template("perfil.html", form=form)
 
 
-@auth_bp.route("/logout")
+@auth_bp.route("/logout", methods=["POST"])
 @login_required
 def logout():
     session.pop("reservas", None)

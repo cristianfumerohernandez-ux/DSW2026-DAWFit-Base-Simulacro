@@ -1,6 +1,10 @@
 from flask import Flask, render_template
+from flask_wtf.csrf import CSRFProtect
 from app.config import Config
 from app.models import db, login_manager, Actividad, Usuario
+
+
+csrf = CSRFProtect()
 
 
 def create_app(config_class=Config):
@@ -8,6 +12,7 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
+    csrf.init_app(app)
     db.init_app(app)
     login_manager.init_app(app)
 

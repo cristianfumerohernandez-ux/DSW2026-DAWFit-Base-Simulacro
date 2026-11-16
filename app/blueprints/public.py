@@ -50,16 +50,18 @@ def ver_actividad(act_id):
     return render_template("actividad_detalle.html", actividad=actividad)
 
 
-@public_bp.route("/preferencia/<string:deporte>")
+@public_bp.route("/preferencia/<string:deporte>", methods=["POST"])
 def guardar_preferencia(deporte):
+    flash("Preferencia guardada.", "info")
     resp = make_response(redirect(url_for("public.home")))
     resp.set_cookie("deporte_fav", value = deporte, max_age=60*60*24*15, httponly=True, samesite="Lax")
     
     return resp
 
 
-@public_bp.route("/limpiar-preferencia")
+@public_bp.route("/limpiar-preferencia", methods=["POST"])
 def limpiar_preferencia():
+    flash("Preferencia eliminada.", "info")
     resp = make_response(redirect(url_for("public.mostrar_actividades")))
     resp.delete_cookie("deporte_fav")
     return resp
@@ -127,7 +129,10 @@ def cancelar_reserva(act_id):
 @login_required
 def confirmar_reservas():
     ids = session.get("reservas", [])
-    
+    if not ids:
+        flash("No hay reservas pendientes para confirmar.", "error")
+        return redirect(url_for("public.mostrar_actividades"))
+
     for act_id in ids:
         actividad = db.session.get(Actividad, act_id)
         if actividad is not None:
@@ -135,5 +140,6 @@ def confirmar_reservas():
 
     db.session.commit()
     session.pop("reservas", None)
+    flash("Inscripciones confirmadas correctamente.", "exito")
 
     return redirect(url_for("public.mostrar_actividades"))

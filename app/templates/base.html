@@ -26,7 +26,10 @@
                 {% if current_user.is_authenticated %}
                     <span>Hola, <strong>{{ current_user.username }}</strong> ({{ current_user.rol }})</span> |
                     <a href="{{ url_for('auth.perfil') }}">Mi Perfil</a>
-                    <a href="{{ url_for('auth.logout') }}" style="color: #ff9999;">Salir</a>
+                    <form action="{{ url_for('auth.logout') }}" method="post" style="display:inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" style="color: #ff9999;">Salir</button>
+                    </form>
                 {% else %}
                     <a href="{{ url_for('auth.login') }}">Iniciar Sesión</a>
                     <a href="{{ url_for('auth.registro') }}">Hacerse Socio</a>

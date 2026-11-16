@@ -47,6 +47,7 @@ def crear_actividad():
         )
         db.session.add(nueva_actividad)
         db.session.commit()
+        flash("Actividad creada correctamente.", "exito")
         return redirect(url_for("public.mostrar_actividades"))
     
     return render_template(
@@ -86,6 +87,7 @@ def editar_actividad(act_id):
             )
             if os.path.isfile(ruta_anterior):
                 os.remove(ruta_anterior)
+        flash("Actividad actualizada correctamente.", "exito")
         return redirect(url_for("public.mostrar_actividades"))
 
     return render_template(
@@ -102,12 +104,16 @@ def eliminar_actividad(act_id):
     if actividad.plazas_libres == 0:
         flash("No se ha podido borrar", "error")
         return redirect(url_for("public.mostrar_actividades"))
-    if actividad.plazas_libres > 0:
-        if actividad.imagen:
-            ruta_imagen = os.path.join(current_app.config["UPLOAD_FOLDER"],actividad.imagen)
+
+    if actividad.imagen:
+        ruta_imagen = os.path.join(
+            current_app.config["UPLOAD_FOLDER"], actividad.imagen
+        )
         if os.path.isfile(ruta_imagen):
             os.remove(ruta_imagen)
-            db.session.delete(actividad)
-            db.session.commit()
+
+    db.session.delete(actividad)
+    db.session.commit()
+    flash("Actividad eliminada correctamente.", "exito")
 
     return redirect(url_for("public.mostrar_actividades"))

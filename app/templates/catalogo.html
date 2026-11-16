@@ -8,12 +8,24 @@
 <!-- Enlaces rápidos para guardar la Cookie de Deporte Favorito (Bloque 1.2) -->
 <div style="margin-bottom: 15px; padding: 10px; background: #eef4f8; border-radius: 6px;">
     <span>Destacar mi deporte favorito: </span>
-    <a href="{{ url_for('public.guardar_preferencia', deporte='Pádel') }}">🎾 Pádel</a> |
-    <a href="{{ url_for('public.guardar_preferencia', deporte='Natación') }}">🏊 Natación</a> |
-    <a href="{{ url_for('public.guardar_preferencia', deporte='Crossfit') }}">🏋️ Crossfit</a>
+    <form action="{{ url_for('public.guardar_preferencia', deporte='Pádel') }}" method="post" style="display:inline;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit">🎾 Pádel</button>
+    </form> |
+    <form action="{{ url_for('public.guardar_preferencia', deporte='Natación') }}" method="post" style="display:inline;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit">🏊 Natación</button>
+    </form> |
+    <form action="{{ url_for('public.guardar_preferencia', deporte='Crossfit') }}" method="post" style="display:inline;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit">🏋️ Crossfit</button>
+    </form>
     {% if deporte_fav %}
         | <strong>Activo: {{ deporte_fav }}</strong>
-        (<a href="{{ url_for('public.limpiar_preferencia') }}" style="color: #e63946;">Quitar preferencia</a>)
+        (<form action="{{ url_for('public.limpiar_preferencia') }}" method="post" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" style="color: #e63946;">Quitar preferencia</button>
+        </form>)
     {% endif %}
 </div>
 
@@ -54,6 +66,7 @@
     <div>
         {% if act.plazas_libres > 0 %}
             <form action="{{ url_for('public.apuntar_actividad', act_id=act.id) }}" method="post" style="display:inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="btn btn-success">+ Apuntarme</button>
             </form>
         {% endif %}
@@ -62,6 +75,7 @@
         {% if current_user.es_monitor %}
         <a href="{{ url_for('admin.editar_actividad', act_id=act.id) }}" style="margin-left: 8px;">Editar</a>
         <form action="{{ url_for('admin.eliminar_actividad', act_id=act.id) }}" method="post" style="display:inline; margin-left: 5px;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn btn-danger" onclick="return confirm('¿Eliminar {{ act.nombre }}?');">Eliminar</button>
         </form>
         {% endif %}
