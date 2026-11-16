@@ -18,11 +18,13 @@
 </div>
 
 <!-- TODO (Bloque 1 - Ejercicio 1.1): Añadir formulario GET con campo de texto 'busqueda' y checkbox 'solo_con_plazas' -->
-<form action="GET">
-<label for="search">Búsqueda</label>
-<input type="text" id ="search"> 
-<input type="checkbox" name="plazas" id="plazas">
-<label for="plazas">Solo con plazas</label>
+<form method="GET">
+<label for="busqueda">Búsqueda</label>
+<input type="text" id ="busqueda" name="busqueda" value = "{{busqueda}}"> 
+<input type="checkbox" name="solo_con_plazas" id="solo_con_plazas" value = 1
+{%if solo_con_plazas%} checked {% endif %}>
+<label for="solo_con_plazas">Solo con plazas</label>
+<button type="submit">Buscar</button>
 </form>
 <hr>
 

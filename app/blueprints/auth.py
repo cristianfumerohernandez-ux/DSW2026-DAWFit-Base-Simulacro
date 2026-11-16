@@ -35,6 +35,18 @@ def registro():
         return redirect(url_for("public.mostrar_actividades"))
 
     form = RegistroForm()
+    if form.validate_on_submit():
+        nuevo_usuario = Usuario(
+            username = form.username.data,
+            email = form.email.data,
+            edad = form.edad.data,
+            rol = "socio"
+        )
+        nuevo_usuario.set_password(form.password.data)
+        db.session.add(nuevo_usuario)
+        db.session.commit()
+        flash("Cuenta creada con exito, dirigiendo al login", "exito")
+        return redirect(url_for("auth.login"))
 
     return render_template("registro.html", form=form)
 
@@ -43,6 +55,15 @@ def registro():
 @login_required
 def perfil():
     form = CambiarPasswordForm()
+    if form.validate_on_submit():
+        password_actual = form.data.get("password_actual")
+        nueva_password = form.data.get("nueva_password")
+        
+        if current_user.check_password(password_actual) and password_actual != nueva_password:
+            current_user.set_password(nueva_password)
+            db.session.commit()
+            flash("Contraseña cambiada correctamente", "exito")
+            return redirect (url_for("auth.perfil"))
 
     return render_template("perfil.html", form=form)
 
@@ -50,7 +71,8 @@ def perfil():
 @auth_bp.route("/logout")
 @login_required
 def logout():
+    session.pop("reservas", None)
+    
     logout_user()
-
     flash("Has cerrado sesión correctamente.", "info")
     return redirect(url_for("public.mostrar_actividades"))
