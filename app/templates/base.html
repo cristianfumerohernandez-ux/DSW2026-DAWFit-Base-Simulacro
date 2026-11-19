@@ -12,7 +12,7 @@
                 <strong style="font-size: 1.2em; margin-right: 15px;">🏋️ DAW-Fit</strong>
                 <a href="{{ url_for('public.mostrar_actividades') }}">Actividades</a>
 
-                <!-- TODO (Bloque 2): Mostrar el enlace '+ Nueva Actividad' SOLO si el usuario es monitor -->
+                <!-- Bloque 2.1: el enlace de alta solo aparece para usuarios con rol de monitor. -->
                 {% if current_user.es_monitor %}
                 <a href="{{ url_for('admin.crear_actividad') }}">+ Nueva Actividad</a>
                 {% endif %}

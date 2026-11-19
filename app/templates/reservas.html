@@ -10,7 +10,7 @@
         {% for act in actividades %}
             <li style="margin-bottom: 10px;">
                 <strong>{{ act.nombre }}</strong> ({{ act.deporte }}) — {{ "%.2f"|format(act.cuota) }} €/mes
-                <!-- TODO (Bloque 3 - Ejercicio 3.3A): Formulario POST para cancelar esta actividad individual -->
+                <!-- Bloque 3.3A: cada formulario POST cancela únicamente su actividad identificada por act_id. -->
                 <form action="{{ url_for('public.cancelar_reserva', act_id=act.id) }}" method="post">
                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                  <button type="submit">Eliminar reserva</button>
@@ -26,7 +26,7 @@
         {% endif %}
         <h3>Cuota Total a Pagar: {{ "%.2f"|format(total_final) }} €/mes</h3>
 
-        <!-- TODO (Bloque 3 - Ejercicio 3.3B): Formulario POST apuntando a public.confirmar_reservas -->
+        <!-- Bloque 3.3B: el formulario POST confirma todas las reservas pendientes en la sesión. -->
         <form action="{{ url_for('public.confirmar_reservas') }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn btn-success">Confirmar Inscripciones y Descontar Plazas</button>

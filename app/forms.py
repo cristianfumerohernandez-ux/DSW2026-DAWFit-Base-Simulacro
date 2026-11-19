@@ -56,23 +56,27 @@ class ActividadForm(FlaskForm):
     )
 
     cuota = FloatField("Cuota Mensual (€)", validators=[
+            # Bloque 2.2: la cuota debe existir y estar comprendida entre 5 y 150 euros.
             DataRequired(message="La cuota es obligatoria"),
             NumberRange(min=5.0, max=150.0 , message= "El precio debe ser mayor que 5 y menor a 150 euros")
         ]
     )
     plazas_libres = IntegerField("Plazas Libres", default=10 , validators=[
+            # Bloque 2.2: el número de plazas es obligatorio y nunca puede ser negativo.
             DataRequired (message= "Mostrar las plazas es obligatorio"),
             NumberRange(min=0, message="El valor mínimo es de 0")
         ]
     )
     archivo_imagen = FileField("Cartel de la Actividad (JPG, PNG)", validators=[
+            # Bloque 2.2: FileAllowed limita las extensiones aceptadas del cartel.
             FileAllowed(['jpg', 'png', 'jpeg'], 'Solo se permiten imágenes (JPG, PNG o JPEG).')
         ]
     )
 
     submit = SubmitField("Guardar Actividad")
-    
+
     def validate_nombre(self, field):
+        # Bloque 2.2: impide duplicar nombres, salvo el nombre de la actividad que se edita.
         actividades = Actividad.query.filter_by(nombre=field.data)
         actividad_actual_id = getattr(self, "actividad_actual_id", None)
         if actividad_actual_id is not None:
@@ -97,6 +101,7 @@ class RegistroForm(FlaskForm):
             Email(message="Introduce un correo válido."),
         ],
     )
+    # Bloque 4.1: la edad debe ser obligatoria y tener como mínimo 16 años.
     edad = IntegerField(
             "Edad",
             validators=[
@@ -133,7 +138,8 @@ class RegistroForm(FlaskForm):
 
 class CambiarPasswordForm(FlaskForm):
     """Formulario para cambiar la contraseña desde el perfil del socio."""
-    
+
+    # Bloque 4.2: la contraseña actual se valida en la vista antes de actualizar el hash.
     password_actual = PasswordField(
         "Contraseña Actual",
         validators=[
@@ -149,6 +155,7 @@ class CambiarPasswordForm(FlaskForm):
             Length(min=6, message="Mínimo 6 caracteres."),
         ],
     )
+    # EqualTo obliga a que la confirmación coincida exactamente con la nueva contraseña.
     confirmar_password = PasswordField(
         "Confirmar Contraseña Nueva",
          validators=[

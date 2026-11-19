@@ -37,6 +37,7 @@ def registro():
 
     form = RegistroForm()
     if form.validate_on_submit():
+        # Bloque 4.1: el nuevo usuario se crea como socio e incluye su edad validada.
         nuevo_usuario = Usuario(
             username = form.username.data,
             email = form.email.data,
@@ -59,7 +60,8 @@ def perfil():
     if form.validate_on_submit():
         password_actual = form.password_actual.data
         nueva_password = form.nueva_password.data
-        
+
+        # Bloque 4.2: se verifica la contraseña actual y que la nueva sea diferente.
         if current_user.check_password(password_actual) and password_actual != nueva_password:
             current_user.set_password(nueva_password)
             db.session.commit()
@@ -74,6 +76,7 @@ def perfil():
 @auth_bp.route("/logout", methods=["POST"])
 @login_required
 def logout():
+    # Bloque 4.3: se eliminan las reservas antes de cerrar la sesión del usuario.
     session.pop("reservas", None)
     
     logout_user()

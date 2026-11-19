@@ -24,6 +24,7 @@ def create_app(config_class=Config):
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
 
+    # Bloque transversal: manejadores globales para respuestas HTTP de acceso denegado y recurso no encontrado.
     # Manejador de error 403 (Acceso Prohibido)
     @app.errorhandler(403)
     def acceso_prohibido(e):

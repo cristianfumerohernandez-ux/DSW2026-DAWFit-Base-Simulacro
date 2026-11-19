@@ -17,6 +17,7 @@ admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 @admin_bp.before_request
 def verificar_anonimo():
+    # Bloque 2.1: solo los usuarios autenticados pueden entrar en el módulo de administración.
     if not current_user.is_authenticated:
         return login_manager.unauthorized()
     if not current_user.es_monitor:
@@ -28,6 +29,7 @@ def crear_actividad():
     form = ActividadForm()
     
     if form.validate_on_submit():
+        # Bloque 2.3: si existe una imagen, se genera un nombre seguro con el deporte como prefijo.
         nombre_imagen = None
         archivo = form.archivo_imagen.data
         if archivo and archivo.filename:
@@ -60,9 +62,11 @@ def crear_actividad():
 def editar_actividad(act_id):
     actividad = db.get_or_404(Actividad, act_id)
     form = ActividadForm(obj=actividad)
+    # Permite que el validador ignore la actividad que se está editando.
     form.actividad_actual_id = actividad.id
 
     if form.validate_on_submit():
+        # Bloque 2.3: al cambiar el cartel se conserva el anterior hasta sustituirlo.
         imagen_anterior = actividad.imagen
         nombre_imagen = imagen_anterior
         archivo = form.archivo_imagen.data
@@ -81,6 +85,7 @@ def editar_actividad(act_id):
         actividad.imagen = nombre_imagen
         db.session.commit()
 
+        # Solo se borra del disco la imagen antigua que haya sido reemplazada.
         if imagen_anterior and imagen_anterior != nombre_imagen:
             ruta_anterior = os.path.join(
                 current_app.config["UPLOAD_FOLDER"], imagen_anterior
@@ -101,10 +106,12 @@ def editar_actividad(act_id):
 @admin_bp.route("/actividad/<int:act_id>/eliminar", methods=["POST"])
 def eliminar_actividad(act_id):
     actividad = db.get_or_404(Actividad,act_id)
+    # Bloque 2.4: una actividad sin plazas disponibles no puede eliminarse.
     if actividad.plazas_libres == 0:
         flash("No se ha podido borrar", "error")
         return redirect(url_for("public.mostrar_actividades"))
 
+    # Primero se limpia el archivo físico y después se elimina el registro.
     if actividad.imagen:
         ruta_imagen = os.path.join(
             current_app.config["UPLOAD_FOLDER"], actividad.imagen
